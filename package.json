@@ -1,0 +1,26 @@
+{
+  "name": "cct-frontend",
+  "version": "0.0.1",
+  "description": "The frontend UI for Cream City Transit",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cream-City-Transit/cct-frontend.git"
+  },
+  "author": "UWM CS Capstone FA26 Group 4",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Cream-City-Transit/cct-frontend/issues"
+  },
+  "homepage": "https://github.com/Cream-City-Transit/cct-frontend#readme",
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@opentripplanner/base-map": "^7.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
