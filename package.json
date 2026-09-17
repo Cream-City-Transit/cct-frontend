@@ -1,10 +1,13 @@
 {
   "name": "cct-frontend",
+  "type": "module",
   "version": "0.0.1",
   "description": "The frontend UI for Cream City Transit",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
   },
   "repository": {
     "type": "git",
@@ -17,10 +20,17 @@
   },
   "homepage": "https://github.com/Cream-City-Transit/cct-frontend#readme",
   "devDependencies": {
-    "typescript": "^7.0.2"
+    "@types/node": "^26.6.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "typescript": "^7.0.2",
+    "vite": "^5.4.21"
   },
   "dependencies": {
     "@opentripplanner/base-map": "^7.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-intl": "^12.1.0"
   }
 }
