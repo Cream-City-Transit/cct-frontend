@@ -1,10 +1,11 @@
+import React from 'react';
 import { useState } from 'react';
 
 function Navigation() {
     const [origin, setOrigin] = useState("");
     const [destination, setDestination] = useState("");
     return (
-        <form>
+         <form className="navigation">
             <input type="text" value={origin} placeholder="Starting Location"
                    onChange={(location) => setOrigin(location.target.value)}/><br/>
             <input type="text" value={destination} placeholder="Destination"
