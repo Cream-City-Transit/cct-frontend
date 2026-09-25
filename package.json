@@ -20,17 +20,23 @@
   },
   "homepage": "https://github.com/Cream-City-Transit/cct-frontend#readme",
   "devDependencies": {
+    "@modyfi/vite-plugin-yaml": "^1.1.1",
     "@types/node": "^26.6.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^4.7.0",
+    "esbuild-plugin-yaml": "^0.0.1",
+    "playwright": "latest",
     "typescript": "^7.0.2",
     "vite": "^5.4.21"
   },
   "dependencies": {
     "@opentripplanner/base-map": "^7.2.0",
+    "@opentripplanner/endpoints-overlay": "^5.0.1",
     "react": "^18.3.1",
+    "react-animate-height": "^3.2.4",
     "react-dom": "^18.3.1",
-    "react-intl": "^12.1.0"
+    "react-intl": "^12.1.0",
+    "styled-components": "^5.3.11"
   }
 }
