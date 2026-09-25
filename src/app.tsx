@@ -19,13 +19,7 @@ function App() {
           <div className="header-left">
             <h1>Cream City Transit</h1>
             <TrainIcon />
-
           </div>
-
-          <nav className="header-nav">
-            <a href="#">Home</a>
-            <a href="#">Log In</a>
-          </nav>
         </header>
 
         <main className="baseMap">
