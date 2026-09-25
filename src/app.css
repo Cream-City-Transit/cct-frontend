@@ -95,6 +95,16 @@ body,
     color: slategray;
 }
 
+.minimize_button {
+    align-self: flex-end;
+    width: 30px;
+    height: 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background: #e7e2d9;
+}
+
 .navigation button {
     padding: 10px;
     cursor: pointer;
