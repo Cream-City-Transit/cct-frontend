@@ -2,6 +2,25 @@ import React from 'react';
 import { useState } from 'react';
 import Switch from './switch';
 
+function Submitted(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    
+    //send lat/long data to the backend, receive it and display it on page
+    fetch('http://localhost:3000/api/routes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                originLat: 42.99189,
+                originLon: -88.01563,
+                destinationLat: 42.92801,    
+                destinationLon: -87.85251,
+            })
+        })
+        .then(response => response.json())
+        .then(displayRoute => alert(JSON.stringify(displayRoute)))
+        .catch(error => console.error('Error:', error))
+}
+
 function Navigation() {
     const [origin, setOrigin] = useState("");
     const [destination, setDestination] = useState("");
@@ -20,12 +39,6 @@ function Navigation() {
         // case-sensitive by default -> convert both the list and input to lowercase
         (list.address.toLowerCase().includes(selectedSearchBar.toLowerCase()))
         || list.name.toLowerCase().includes(selectedSearchBar.toLowerCase()));
-    const generate_route = (search) => {
-        // prevents reloading the entire page
-        search.preventDefault();
-        // placeholder
-        alert(`from ${origin} to ${destination}`);
-    };
     const handleSearch = (search) => {
         // check which search bar triggered event
         if(search.target.id==="origin"){
