@@ -65,6 +65,8 @@ function App() {
           </BaseMap>
 
           <Navigation
+            originCoords={originCoords}
+            destinationCoords={destinationCoords}
             setOriginCoords={setOriginCoords}
             setDestinationCoords={setDestinationCoords}
           />
