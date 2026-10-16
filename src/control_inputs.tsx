@@ -20,7 +20,6 @@ type ControlInputsProps = {
     setDestination: (value: string) => void;
 };
 
-
 function Suggestions({ results, onSelect }: { results: Place[]; onSelect: (p: Place) => void }) {
     return (
         <ul className="results-container">
@@ -109,10 +108,10 @@ function Navigation({
         setDestinationCoords({ lat: place.lat, lon: place.lon });
         setDestinationView(false);
     };
-
    
     return (
         <form className={`navigation ${minimized ? "minimized" : ""}`} onSubmit={(e) => Submitted(e, originCoords, destinationCoords)}>
+
             <button type="button" className="minimize_button" onClick={() => {setMinimized(!minimized)}}>
                 {minimized ? "▲" : "▼"}
             </button>
