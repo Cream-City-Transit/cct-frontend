@@ -9,6 +9,7 @@ import Navigation from "./control_inputs";
 import TrainIcon from "./train_icon";
 import { MapRef } from "react-map-gl/maplibre";
 import ZoomControls from "./ZoomControls";
+import { reverseGeocode } from "./geocoder";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 type Coordinates = {
@@ -28,9 +29,32 @@ function App() {
   // Destination
   const [destinationCoords, setDestinationCoords] =
     useState<Coordinates>({
-      lat: 43.075191,
-      lon: -87.880391,
-    });
+    lat: 43.075191,
+    lon: -87.880391,
+  });
+
+  // Address text shown in the search inputs
+  const [origin, setOrigin] = useState("");
+  const [destination, setDestination] = useState("");
+
+  // Fires when a pin is dragged and dropped
+  const handleSetLocation = async ({ location, locationType }: any) => {
+    const coords = { lat: location.lat, lon: location.lon };
+    const isFrom = locationType === "from";
+    const setCoords = isFrom ? setOriginCoords : setDestinationCoords;
+    const setText = isFrom ? setOrigin : setDestination;
+
+    setCoords(coords);
+    // Show raw coordinates immediately, replace with the address when it arrives
+    setText(`${coords.lat.toFixed(5)}, ${coords.lon.toFixed(5)}`);
+
+    try {
+      const place = await reverseGeocode(coords.lat, coords.lon);
+      if (place) setText(place.address || place.name);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
     <IntlProvider locale="en" messages={{}}>
@@ -54,13 +78,14 @@ function App() {
               fromLocation={{
                 lat: originCoords.lat,
                 lon: originCoords.lon,
-                name: "from",
+                name: origin || "from",
               }}
               toLocation={{
                 lat: destinationCoords.lat,
                 lon: destinationCoords.lon,
-                name: "to",
+                name: destination || "to",
               }}
+              setLocation={handleSetLocation}
             />
           </BaseMap>
 
@@ -69,6 +94,10 @@ function App() {
             destinationCoords={destinationCoords}
             setOriginCoords={setOriginCoords}
             setDestinationCoords={setDestinationCoords}
+            origin={origin}
+            destination={destination}
+            setOrigin={setOrigin}
+            setDestination={setDestination}
           />
 
           <ZoomControls mapRef={mapRef} />
