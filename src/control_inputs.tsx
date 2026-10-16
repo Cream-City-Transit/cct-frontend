@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Submitted from './submission';
 import Switch from './switch';
 import { Place, usePlaceSearch } from './geocoder';
 
@@ -10,6 +11,7 @@ type Coordinates = {
 type ControlInputsProps = {
     originCoords: Coordinates;
     destinationCoords: Coordinates;
+
     setOriginCoords: React.Dispatch<React.SetStateAction<Coordinates>>;
     setDestinationCoords: React.Dispatch<React.SetStateAction<Coordinates>>;
     origin: string;
@@ -106,28 +108,10 @@ function Navigation({
         setDestinationCoords({ lat: place.lat, lon: place.lon });
         setDestinationView(false);
     };
-
-    // Send lat/lon to the backend, receive the route and display it
-    const submitted = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
-        fetch('http://localhost:3000/api/routes', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                originLat: originCoords.lat,
-                originLon: originCoords.lon,
-                destinationLat: destinationCoords.lat,
-                destinationLon: destinationCoords.lon,
-            }),
-        })
-            .then((response) => response.json())
-            .then((displayRoute) => alert(JSON.stringify(displayRoute)))
-            .catch((error) => console.error('Error:', error));
-    };
-
+   
     return (
-        <form className={`navigation ${minimized ? "minimized" : ""}`} onSubmit={submitted}>
+        <form className={`navigation ${minimized ? "minimized" : ""}`} onSubmit={(e) => Submitted(e, originCoords, destinationCoords)}>
+
             <button type="button" className="minimize_button" onClick={() => {setMinimized(!minimized)}}>
                 {minimized ? "▲" : "▼"}
             </button>
