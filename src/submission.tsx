@@ -5,15 +5,19 @@ export type Coordinates = {
     lon: number;
 };
 
-type Location = {
-    id: number;
-    address: string;
-    name: string;
-    lat: number;
-    lon: number;
+type ControlInputsProps = {
+    originCoords: Coordinates;
+    destinationCoords: Coordinates;
+
+    setOriginCoords: React.Dispatch<React.SetStateAction<Coordinates>>;
+    setDestinationCoords: React.Dispatch<React.SetStateAction<Coordinates>>;
+    origin: string;
+    destination: string;
+    setOrigin: (value: string) => void;
+    setDestination: (value: string) => void;
 };
 
-function Submitted(event: React.FormEvent<HTMLFormElement>, originCoords: Coordinates | Location, destinationCoords: Coordinates | Location) {
+function Submitted(event: React.FormEvent<HTMLFormElement>, originCoords: Coordinates, destinationCoords: Coordinates) {
     event.preventDefault();
 
     //send lat/long data to the backend, receive it and display it on page
