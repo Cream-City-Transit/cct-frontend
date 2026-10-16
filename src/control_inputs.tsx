@@ -33,6 +33,7 @@ function Navigation({
 
     const [origin, setOrigin] = useState('');
     const [destination, setDestination] = useState('');
+    const [walkingDistance, setWalkingDistance] = useState(1);
 
     const [minimized, setMinimized] = useState(false);
     const [originView, setOriginView] = useState(false);
@@ -101,7 +102,9 @@ function Navigation({
 
         setDestinationView(false);
     };
-
+    const walkingPreference = (preference:React.ChangeEvent<HTMLInputElement>) => {
+        setWalkingDistance(preference.target.value);
+    };
     
 
     return (
@@ -112,7 +115,7 @@ function Navigation({
 
             {minimized && (
                 <>
-                    <input type="search" value={origin} id="origin" placeholder="Starting Location" onChange={handleSearch}/><br/>
+                    <input type="search" className="search" value={origin} id="origin" placeholder="Starting Location" onChange={handleSearch}/><br/>
                     {originView && origin && (
                         <ul className="results-container">
                             {filterSearch(origin).length > 0 ? (
@@ -136,7 +139,7 @@ function Navigation({
                             )}
                         </ul>
                     )}
-                    <input type="search" value={destination} id="destination" placeholder="Destination" onChange={handleSearch}/><br/>
+                    <input type="search" className="search" value={destination} id="destination" placeholder="Destination" onChange={handleSearch}/><br/>
                     {destinationView && destination && (
                         <ul className="results-container">
                             {filterSearch(destination).length > 0 ? (
@@ -164,12 +167,26 @@ function Navigation({
                             )}
                         </ul>
                     )}
-                    <button type="submit"> Generate Route </button><br/>
-
-                    <Switch mode="MCTS"/>
-                    <Switch mode="Prowl Line"/>
-                    <Switch mode="U-PARK"/>
-                    <Switch mode="The Hop"/>
+                    <button type="submit" class="submit_button"> Generate Route </button>
+                    <div className="section"> Transportation Modes </div>
+                    <div className="switch_grid">
+                        <Switch mode="MCTS"/>
+                        <Switch mode="Prowl Line"/>
+                        <Switch mode="U-PARK"/>
+                        <Switch mode="The Hop"/>
+                        <Switch mode="Bublr"/>
+                    </div>
+                    <div className="section"> Walking Preference </div>
+                    <div className="range_container">
+                        <input type="range"
+                            id="pref"
+                            min="0"
+                            max="3"
+                            step="0.1"
+                            value={walkingDistance}
+                            onChange={walkingPreference}/>
+                        <label htmlFor="pref"> {walkingDistance} mi </label>
+                    </div>
                 </>
             )}
         </form>
