@@ -37,6 +37,9 @@ function App() {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
 
+  // selected modes
+  const [modes, setModes] = useState<string[]>([]);
+
   // Fires when a pin is dragged and dropped
   const handleSetLocation = async ({ location, locationType }: any) => {
     const coords = { lat: location.lat, lon: location.lon };
@@ -98,6 +101,8 @@ function App() {
             destination={destination}
             setOrigin={setOrigin}
             setDestination={setDestination}
+            modes={modes}
+            setModes={setModes}
           />
 
           <ZoomControls mapRef={mapRef} />

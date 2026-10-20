@@ -11,13 +11,14 @@ type Coordinates = {
 type ControlInputsProps = {
     originCoords: Coordinates;
     destinationCoords: Coordinates;
-
     setOriginCoords: React.Dispatch<React.SetStateAction<Coordinates>>;
     setDestinationCoords: React.Dispatch<React.SetStateAction<Coordinates>>;
     origin: string;
     destination: string;
     setOrigin: (value: string) => void;
     setDestination: (value: string) => void;
+    modes: string[];
+    setModes: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 function Suggestions({ results, onSelect }: { results: Place[]; onSelect: (p: Place) => void }) {
@@ -47,6 +48,8 @@ function Navigation({
     destination,
     setOrigin,
     setDestination,
+    modes,
+    setModes
 }: ControlInputsProps) {
   
     const [minimized, setMinimized] = useState(false);
@@ -114,10 +117,18 @@ function Navigation({
         setWalkingDistance(preference.target.value);
     };
     
+    const toggleMode = (mode: string) => {
+        setModes((prev) => {
+            if (prev.includes(mode)) {
+                return prev.filter((m) => m !== mode);
+            } else {
+                return [...prev, mode];
+            }
+        });
+    };
 
-   
     return (
-        <form className={`navigation ${minimized ? "minimized" : ""}`} onSubmit={(e) => Submitted(e, originCoords, destinationCoords)}>
+        <form className={`navigation ${minimized ? "minimized" : ""}`} onSubmit={(e) => Submitted(e, originCoords, destinationCoords,modes)}>
 
             <button type="button" className="minimize_button" onClick={() => {setMinimized(!minimized)}}>
                 {minimized ? "▲" : "▼"}
@@ -133,14 +144,14 @@ function Navigation({
                     {destinationView && destination && (
                         <Suggestions results={destinationResults} onSelect={selectDestination} />
                     )}
-                    <button type="submit" class="submit_button"> Generate Route </button>
+                    <button type="submit" className="submit_button"> Generate Route </button>
                     <div className="section"> Transportation Modes </div>
                     <div className="switch_grid">
-                        <Switch mode="MCTS"/>
-                        <Switch mode="Prowl Line"/>
-                        <Switch mode="U-PARK"/>
-                        <Switch mode="The Hop"/>
-                        <Switch mode="Bublr"/>
+                        <Switch mode="MCTS" state={modes.includes("MCTS") ? "On" : "Off"} checked={modes.includes("MCTS")} onToggle={toggleMode}/>
+                        <Switch mode="Prowl Line" state={modes.includes("Prowl Line") ? "On" : "Off"} checked={modes.includes("Prowl Line")} onToggle={toggleMode}/>
+                        <Switch mode="U-PARK" state={modes.includes("U-PARK") ? "On" : "Off"} checked={modes.includes("U-PARK")} onToggle={toggleMode}/>
+                        <Switch mode="The Hop" state={modes.includes("The Hop") ? "On" : "Off"} checked={modes.includes("The Hop")} onToggle={toggleMode}/>
+                        <Switch mode="Bublr" state={modes.includes("Bublr") ? "On" : "Off"} checked={modes.includes("Bublr")} onToggle={toggleMode}/>
                     </div>
                     <div className="section"> Walking Preference </div>
                     <div className="range_container">

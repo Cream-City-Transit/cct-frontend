@@ -17,7 +17,7 @@ type ControlInputsProps = {
     setDestination: (value: string) => void;
 };
 
-function Submitted(event: React.FormEvent<HTMLFormElement>, originCoords: Coordinates, destinationCoords: Coordinates) {
+function Submitted(event: React.FormEvent<HTMLFormElement>, originCoords: Coordinates, destinationCoords: Coordinates, modes: string[]) {
     event.preventDefault();
 
     //send lat/long data to the backend, receive it and display it on page
@@ -29,6 +29,7 @@ function Submitted(event: React.FormEvent<HTMLFormElement>, originCoords: Coordi
                 originLon: originCoords.lon,
                 destinationLat: destinationCoords.lat,
                 destinationLon: destinationCoords.lon,
+                modes: modes
             }),
     })
         .then((response) => response.json())
