@@ -114,7 +114,7 @@ function Navigation({
         setDestinationView(false);
     };
     const walkingPreference = (preference:React.ChangeEvent<HTMLInputElement>) => {
-        setWalkingDistance(preference.target.value);
+        setWalkingDistance(preference.target.valueAsNumber);
     };
     
     const toggleMode = (mode: string) => {
