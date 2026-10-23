@@ -7,7 +7,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import EndpointsOverlay from "@opentripplanner/endpoints-overlay";
 import Navigation from "./control_inputs";
 import TrainIcon from "./train_icon";
-import { MapRef} from "react-map-gl/maplibre";
+import { MapRef, Popup } from "react-map-gl/maplibre";
 import type { GeoJSONSource } from "maplibre-gl";
 import ZoomControls from "./ZoomControls";
 import { reverseGeocode } from "./geocoder";
@@ -16,6 +16,12 @@ import StopsOverlay from "@opentripplanner/stops-overlay";
 import { Stop } from "@opentripplanner/types";
 import { Route } from "./submission";
 import type { FeatureCollection } from "geojson";
+import Itinerary, {
+  legSeconds,
+  legDistance,
+  formatDuration,
+  formatDistance,
+} from "./planRoute";
 
 const testStop: Stop[] =  [
     { id: "4026", lat: 42.9766622,  lon: -87.9481609, name: "S27 & S3744", gtfsId: "MCTS:4026"},
@@ -25,8 +31,8 @@ const testStop: Stop[] =  [
 ];
 
 type Coordinates = {
-    lat: number;
-    lon: number;
+  lat: number;
+  lon: number;
 };
 
 function App() {
@@ -76,19 +82,19 @@ function App() {
 
   // generate the route line
   const generateRoute = useMemo<GeoJSON.FeatureCollection>(() => ({
-    type: "FeatureCollection",
+      type: "FeatureCollection",
     features: (
       //use the route if it exists, otherwise use an empty array
       route[0]?.legs ?? []).map((routePart) => ({
-      type: "Feature",
-      properties: { mode: routePart.mode },
-      geometry: {
-        type: "LineString",
-        coordinates: routePart.geometry.map((p) => [p.lon, p.lat]),
-      },
+        type: "Feature",
+        properties: { mode: routePart.mode },
+        geometry: {
+          type: "LineString",
+          coordinates: routePart.geometry.map((p) => [p.lon, p.lat]),
+        },
       })),
     }),
-    
+
     [route]
   );
 
@@ -120,23 +126,31 @@ function App() {
     }
   }, [generateRoute]);
 
-const handleRoute = (routes: Route[]) => {
-  setRoute(routes);
+  const handleRoute = (routes: Route[]) => {
+    setRoute(routes);
+    setShowPopup(true);
 
-  //zoom into the route that was drawn
-  const pts = routes[0]?.legs.flatMap((part) => part.geometry) ?? [];
-  if (pts.length) {
-    const lons = pts.map((point) => point.lon);
-    const lats = pts.map((point) => point.lat);
-    mapRef.current?.fitBounds(
-      [
-        [Math.min(...lons), Math.min(...lats)],
-        [Math.max(...lons), Math.max(...lats)],
-      ],
-      { padding: 200, duration: 800 }
-    );
-  }
-};
+    //zoom into the route that was drawn
+    const pts = routes[0]?.legs.flatMap((part) => part.geometry) ?? [];
+    if (pts.length) {
+      const lons = pts.map((point) => point.lon);
+      const lats = pts.map((point) => point.lat);
+      mapRef.current?.fitBounds(
+        [
+          [Math.min(...lons), Math.min(...lats)],
+          [Math.max(...lons), Math.max(...lats)],
+        ],
+        { padding: 200, duration: 800 }
+      );
+    }
+  };
+  const [showPopup, setShowPopup] = useState(false);
+
+  const legs = route[0]?.legs ?? [];
+  const allPts = legs.flatMap((l) => l.geometry);
+  const midPoint = allPts[Math.floor(allPts.length / 2)]; // popup sits halfway along the route
+  const totalSeconds = legs.reduce((sum, l) => sum + legSeconds(l), 0);
+  const totalMeters = legs.reduce((sum, l) => sum + legDistance(l), 0);
 
   return (
     <IntlProvider locale="en" messages={{}}>
@@ -155,6 +169,7 @@ const handleRoute = (routes: Route[]) => {
             center={[43.075191, -87.881391]}
             zoom={15}
             innerRef={mapRef}
+            baseLayer="https://tiles.openfreemap.org/styles/liberty"
           >
             <EndpointsOverlay
               fromLocation={{
@@ -169,10 +184,20 @@ const handleRoute = (routes: Route[]) => {
               }}
               setLocation={handleSetLocation}
             />
-              <StopsOverlay
-                  stops={testStop}
-                  visible={true}
-              />
+            {showPopup && midPoint && (
+              <Popup
+                latitude={midPoint.lat}
+                longitude={midPoint.lon}
+                anchor="bottom"
+                closeOnClick={false}
+                onClose={() => setShowPopup(false)}
+              >
+                <strong>~{formatDuration(totalSeconds)}</strong>
+                <br />
+                {formatDistance(totalMeters)} · est.
+              </Popup>
+            )}
+            <StopsOverlay stops={testStop} visible={true} />
           </BaseMap>
 
           <Navigation
@@ -188,11 +213,10 @@ const handleRoute = (routes: Route[]) => {
             setModes={setModes}
             getRoute={handleRoute}
           />
+          <Itinerary route={route} />
 
           <ZoomControls mapRef={mapRef} />
-
         </main>
-
       </div>
     </IntlProvider>
   );

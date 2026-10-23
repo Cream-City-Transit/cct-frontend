@@ -22,7 +22,7 @@ export type Point = {
 }
 
 export type RoutePart = {
-    mode: String;
+    mode: string;
     geometry: Point[];
 }
 
