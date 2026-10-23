@@ -11,10 +11,19 @@ import { MapRef } from "react-map-gl/maplibre";
 import ZoomControls from "./ZoomControls";
 import { reverseGeocode } from "./geocoder";
 import "maplibre-gl/dist/maplibre-gl.css";
+import StopsOverlay from "@opentripplanner/stops-overlay";
+import { Stop } from "@opentripplanner/types";
+
+const testStop: Stop[] =  [
+    { id: "4026", lat: 42.9766622,  lon: -87.9481609, name: "S27 & S3744", gtfsId: "MCTS:4026"},
+    { id: "4027", lat: 42.9816537,  lon: -87.9481095, name: "S27 & MORGAN", gtfsId: "MCTS:4027"},
+    { id: "4025", lat: 42.9737435,  lon: -87.9482475, name: "S27 & HOWARD", gtfsId: "MCTS:4025"},
+    { id: "4022", lat: 42.9665053,  lon: -87.9483668, name: "S27 & BOLIVAR", gtfsId: "MCTS:4022"},
+];
 
 type Coordinates = {
-  lat: number;
-  lon: number;
+    lat: number;
+    lon: number;
 };
 
 function App() {
@@ -90,6 +99,10 @@ function App() {
               }}
               setLocation={handleSetLocation}
             />
+              <StopsOverlay
+                  stops={testStop}
+                  visible={true}
+              />
           </BaseMap>
 
           <Navigation
