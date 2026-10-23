@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Submitted from './submission';
 import Switch from './switch';
 import { Place, usePlaceSearch } from './geocoder';
+import type { Route } from './submission';
 
 type Coordinates = {
     lat: number;
@@ -19,6 +20,7 @@ type ControlInputsProps = {
     setDestination: (value: string) => void;
     modes: string[];
     setModes: React.Dispatch<React.SetStateAction<string[]>>;
+    getRoute: (route: Route[]) => void;
 };
 
 function Suggestions({ results, onSelect }: { results: Place[]; onSelect: (p: Place) => void }) {
@@ -49,7 +51,8 @@ function Navigation({
     setOrigin,
     setDestination,
     modes,
-    setModes
+    setModes,
+    getRoute
 }: ControlInputsProps) {
   
     const [minimized, setMinimized] = useState(false);
@@ -128,7 +131,7 @@ function Navigation({
     };
 
     return (
-        <form className={`navigation ${minimized ? "minimized" : ""}`} onSubmit={(e) => Submitted(e, originCoords, destinationCoords,modes)}>
+        <form className={`navigation ${minimized ? "minimized" : ""}`} onSubmit={(e) => Submitted(e, originCoords, destinationCoords,modes, getRoute)}>
 
             <button type="button" className="minimize_button" onClick={() => {setMinimized(!minimized)}}>
                 {minimized ? "▲" : "▼"}
