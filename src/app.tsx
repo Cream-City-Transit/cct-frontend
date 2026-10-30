@@ -14,7 +14,7 @@ import { reverseGeocode } from "./geocoder";
 import "maplibre-gl/dist/maplibre-gl.css";
 import StopsOverlay from "@opentripplanner/stops-overlay";
 import { Stop } from "@opentripplanner/types";
-import { Route } from "./submission";
+import { Route, requestRoute } from "./submission";
 import type { FeatureCollection } from "geojson";
 import Itinerary, {
   legSeconds,
@@ -133,20 +133,20 @@ function App() {
     setActiveLeg(null);
     setShowPopup(true);
 
-    //zoom into the route that was drawn
     const pts = routes[0]?.legs.flatMap((part) => part.geometry) ?? [];
     if (pts.length) {
-      const lons = pts.map((point) => point.lon);
-      const lats = pts.map((point) => point.lat);
-      mapRef.current?.fitBounds(
-        [
-          [Math.min(...lons), Math.min(...lats)],
-          [Math.max(...lons), Math.max(...lats)],
-        ],
-        { padding: 200, duration: 800 }
-      );
+        const lons = pts.map((point) => point.lon);
+        const lats = pts.map((point) => point.lat);
+
+        mapRef.current?.fitBounds(
+            [
+                [Math.min(...lons), Math.min(...lats)],
+                [Math.max(...lons), Math.max(...lats)],
+            ],
+            { padding: 200, duration: 800 }
+        );
     }
-  };
+};
 
   // zoom to the start of the route and show only the first leg
 const startRoute = () => {
@@ -161,6 +161,27 @@ const startRoute = () => {
     duration: 1200,
   });
 };
+// Swap starting and ending locations
+const swapLocations = () => {
+  const newOrigin = destinationCoords;
+  const newDestination = originCoords;
+
+  setOriginCoords(newOrigin);
+  setDestinationCoords(newDestination);
+
+  setOrigin(destination);
+  setDestination(origin);
+
+  setRoute([]);
+  setActiveLeg(null);
+  setShowPopup(false);
+
+  // Only regenerate if the user previously requested a route
+  if (hasGeneratedRoute) {
+      requestRoute(newOrigin, newDestination, modes, handleRoute);
+  }
+};
+const [hasGeneratedRoute, setHasGeneratedRoute] = useState(false);
 
   const legs = route[0]?.legs ?? [];
   const allPts = legs.flatMap((l) => l.geometry);
@@ -219,6 +240,8 @@ const startRoute = () => {
           <Navigation
             originCoords={originCoords}
             destinationCoords={destinationCoords}
+            onSwap={swapLocations}
+            setHasGeneratedRoute={setHasGeneratedRoute}
             setOriginCoords={setOriginCoords}
             setDestinationCoords={setDestinationCoords}
             origin={origin}
