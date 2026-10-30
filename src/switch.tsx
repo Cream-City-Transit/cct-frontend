@@ -16,7 +16,7 @@ function Switch({ mode, state, checked, onToggle }: SwitchProps) {
           checked={checked}
           onChange={() => onToggle(mode)}
         />
-        <span className="slider" />
+        <span className={`slider ${mode}`} />
       </label>
       <span className="mode">{mode}</span>
     </div>

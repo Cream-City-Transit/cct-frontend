@@ -54,6 +54,7 @@ function Submitted(event: React.FormEvent<HTMLFormElement>, originCoords: Coordi
             if (displayRoute.length > 0) {
                 getRoute(displayRoute);
                 alert(JSON.stringify(displayRoute));
+                console.log(JSON.stringify(displayRoute));
             }
             else{
                 alert("No route found.");
