@@ -209,6 +209,24 @@ body,
 input:checked + .slider {
     background-color: #81c6a8;
 }
+input:checked + .slider.MCTS {
+    background-color: #ffea00
+}
+/* input:checked + .slider.Prowl.Line {
+    background-color: #ffea00
+}
+
+input:checked + .slider.U-PARK {
+    background-color: #00ff00
+} */
+input:checked + .slider.The.Hop {
+    /* background-color: #0000ff */
+    /* currently set to yellow because it is classed as a bus still */
+    background-color: #ffea00
+}
+input:checked + .slider.Bublr {
+    background-color: #0000ff
+}
 input:focus + .slider {
     box-shadow: 0 0 1px #99675d;
 }
@@ -347,5 +365,29 @@ input:checked + .slider:before {
 }
 
 .itinerary-button:hover {
+    background-color: #6e95b7;
+}
+
+
+/* Swap starting location and destination */
+.swap_button {
+    align-self: center;
+    margin-top: -30px;
+    width: 36px;
+    height: 30px;
+
+    background-color: #81A6C6;
+    border: 1px solid slategray;
+    border-radius: 5px;
+
+    color: ghostwhite;
+    font-size: 20px;
+    font-weight: bold;
+
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.swap_button:hover {
     background-color: #6e95b7;
 }

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React from 'react';
 
 export type Coordinates = {
     lat: number;
@@ -30,38 +31,55 @@ export type Route = {
     legs: RoutePart[];
 }
 
-function Submitted(event: React.FormEvent<HTMLFormElement>, originCoords: Coordinates, destinationCoords: Coordinates, modes: string[], getRoute: (route: Route[]) => void) {
-    event.preventDefault();
-
-    //send lat/long data to the backend, receive it and display it on page
+// Send the request to the backend and display the route
+export function requestRoute(
+    originCoords: Coordinates,
+    destinationCoords: Coordinates,
+    modes: string[],
+    getRoute: (route: Route[]) => void
+) {
     fetch('http://localhost:3000/api/routes', {
         method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                originLat: originCoords.lat,
-                originLon: originCoords.lon,
-                destinationLat: destinationCoords.lat,
-                destinationLon: destinationCoords.lon,
-                modes: modes
-            }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            originLat: originCoords.lat,
+            originLon: originCoords.lon,
+            destinationLat: destinationCoords.lat,
+            destinationLon: destinationCoords.lon,
+            modes: modes
+        }),
     })
         .then((response) => {
-            //return the generated route 
+            //return the generated route
             return response.json();
         })
-        .then((displayRoute : Route[]) => {
+        .then((displayRoute: Route[]) => {
             //pass the generated route, if no route is found then display an error message
             if (displayRoute.length > 0) {
                 getRoute(displayRoute);
                 alert(JSON.stringify(displayRoute));
+                console.log(JSON.stringify(displayRoute));
             }
-            else{
+            else {
                 alert("No route found.");
             }
         })
         .catch((error) => {
             console.error('Error:', error);
         });
+}
+
+function Submitted(
+    event: React.FormEvent<HTMLFormElement>,
+    originCoords: Coordinates,
+    destinationCoords: Coordinates,
+    modes: string[],
+    getRoute: (route: Route[]) => void
+) {
+    event.preventDefault();
+
+    //send lat/long data to the backend, receive it and display it on page
+    requestRoute(originCoords, destinationCoords, modes, getRoute);
 }
 
 export default Submitted;

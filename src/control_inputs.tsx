@@ -13,6 +13,7 @@ type Coordinates = {
 };
 
 type ControlInputsProps = {
+    setHasGeneratedRoute: React.Dispatch<React.SetStateAction<boolean>>;
     originCoords: Coordinates;
     destinationCoords: Coordinates;
     setOriginCoords: React.Dispatch<React.SetStateAction<Coordinates>>;
@@ -24,6 +25,7 @@ type ControlInputsProps = {
     modes: string[];
     setModes: React.Dispatch<React.SetStateAction<string[]>>;
     getRoute: (route: Route[]) => void;
+    onSwap: () => void;
 };
 
 function Suggestions({ results, onSelect }: { results: Place[]; onSelect: (p: Place) => void }) {
@@ -45,6 +47,8 @@ function Suggestions({ results, onSelect }: { results: Place[]; onSelect: (p: Pl
 }
 
 function Navigation({
+    onSwap,
+    setHasGeneratedRoute,
     originCoords,
     destinationCoords,
     setOriginCoords,
@@ -134,7 +138,9 @@ function Navigation({
     };
 
     return (
-        <form className={`navigation ${minimized ? "minimized" : ""}`} onSubmit={(e) => Submitted(e, originCoords, destinationCoords,modes, getRoute)}>
+        <form className={`navigation ${minimized ? "minimized" : ""}`} onSubmit={(e) => {
+        setHasGeneratedRoute(true);
+        Submitted(e, originCoords, destinationCoords,modes, getRoute)}}>
 
             <button type="button" className="minimize_button" onClick={() => {setMinimized(!minimized)}}>
                 {minimized ? "▲" : "▼"}
@@ -154,6 +160,14 @@ function Navigation({
                             {originView && origin && (
                                 <Suggestions results={originResults} onSelect={selectOrigin} />
                             )}
+                                <button
+                                    type="button"
+                                    className="swap_button"
+                                    onClick={onSwap}
+                                    title="Swap starting location and destination"
+                                >
+                                    ⇅
+                                </button>
                             <input type="search" className="search" value={destination} id="destination" placeholder="Destination" onChange={handleSearch}/><br/>
                             {destinationView && destination && (
                                 <Suggestions results={destinationResults} onSelect={selectDestination} />
@@ -211,6 +225,7 @@ function Navigation({
                             View Stops
                         </AccordionSummary>
                     </Accordion>
+
                 </>
             )}
         </form>
