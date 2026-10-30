@@ -1,5 +1,6 @@
 import React from "react";
 import type { Route, RoutePart, Point } from "./submission";
+import "./app.css";
 
 
 const MODE_LABELS: Record<string, string> = {
@@ -52,7 +53,14 @@ export function formatDuration(seconds: number): string {
     return m ? `${h} h ${m} min` : `${h} h`;
 }
 
-export default function Itinerary({ route }: { route: Route[] }) {
+type Props = {
+    route: Route[];
+    started: boolean;
+    onStart: () => void;
+    onReset: () => void;
+  };
+  
+  export default function Itinerary({ route, started, onStart, onReset }: Props) {
     const legs = route[0]?.legs ?? [];
     if (legs.length === 0) return null;
 
@@ -80,6 +88,15 @@ export default function Itinerary({ route }: { route: Route[] }) {
                     </li>
                 ))}
             </ol>
+            {legs.length > 0 && (
+  <button
+    type="button"
+    className="itinerary-button"
+    onClick={started ? onReset : onStart}
+  >
+    {started ? "Show Full Route" : "Start Route"}
+  </button>
+)}
         </aside>
     );
 }

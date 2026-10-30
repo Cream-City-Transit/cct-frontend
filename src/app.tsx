@@ -60,6 +60,9 @@ function App() {
 
   // the route
   const [route, setRoute] = useState<Route[]>([]);
+  const [showPopup, setShowPopup] = useState(false);
+  // null = show the whole route, a number = show only that leg
+  const [activeLeg, setActiveLeg] = useState<number | null>(null);
 
   // Fires when a pin is dragged and dropped
   const handleSetLocation = async ({ location, locationType }: any) => {
@@ -80,12 +83,13 @@ function App() {
     }
   };
 
-  // generate the route line
-  const generateRoute = useMemo<GeoJSON.FeatureCollection>(() => ({
+  // generate the route line (only the active leg once the route has started)
+  const generateRoute = useMemo<GeoJSON.FeatureCollection>(() => {
+    const allLegs = route[0]?.legs ?? [];
+    const visible = activeLeg === null ? allLegs : allLegs.slice(activeLeg, activeLeg + 1);
+    return {
       type: "FeatureCollection",
-    features: (
-      //use the route if it exists, otherwise use an empty array
-      route[0]?.legs ?? []).map((routePart) => ({
+      features: visible.map((routePart) => ({
         type: "Feature",
         properties: { mode: routePart.mode },
         geometry: {
@@ -93,10 +97,8 @@ function App() {
           coordinates: routePart.geometry.map((p) => [p.lon, p.lat]),
         },
       })),
-    }),
-
-    [route]
-  );
+    };
+  }, [route, activeLeg]);
 
   // draw the routing line
   useEffect(() => {
@@ -142,6 +144,7 @@ function App() {
 
   const handleRoute = (routes: Route[]) => {
     setRoute(routes);
+    setActiveLeg(null);
     setShowPopup(true);
 
     //zoom into the route that was drawn
@@ -158,7 +161,20 @@ function App() {
       );
     }
   };
-  const [showPopup, setShowPopup] = useState(false);
+
+  // zoom to the start of the route and show only the first leg
+const startRoute = () => {
+  const firstLeg = route[0]?.legs[0];
+  const start = firstLeg?.geometry[0];
+  if (!start) return;
+  setActiveLeg(0);
+  setShowPopup(false);
+  mapRef.current?.flyTo({
+    center: [start.lon, start.lat],
+    zoom: 17,
+    duration: 1200,
+  });
+};
 
   const legs = route[0]?.legs ?? [];
   const allPts = legs.flatMap((l) => l.geometry);
@@ -227,7 +243,12 @@ function App() {
             setModes={setModes}
             getRoute={handleRoute}
           />
-          <Itinerary route={route} />
+          <Itinerary
+            route={route}
+            started={activeLeg !== null}
+            onStart={startRoute}
+            onReset={() => handleRoute(route)}
+          />
 
           <ZoomControls mapRef={mapRef} />
         </main>
