@@ -117,7 +117,21 @@ function App() {
         type: "line",
         source: "route",
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-width": 6, "line-color": "#ff0000" },
+        paint: { "line-width": 6,
+                "line-color": {
+                  property: "mode",
+                  type: "categorical",
+                  stops: [
+                    // temporary color scheme, will adjust as data gets changed
+                    ["WALK", "#ff0000"],
+                    ["CAR", "#ff7900"],
+                    ["BUS", "#ffea00"],
+                    // ["Prowl Line", "#ffea00"],
+                    // ["U-PARK", "#00ff00"],
+                    // ["The Hop", "#0000ff"],
+                    ["BICYCLE", "#0000ff"],
+                  ]
+                } },
       });
     };
 

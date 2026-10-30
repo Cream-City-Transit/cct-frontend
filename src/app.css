@@ -206,6 +206,24 @@ body,
 input:checked + .slider {
     background-color: #81c6a8;
 }
+input:checked + .slider.MCTS {
+    background-color: #ffea00
+}
+/* input:checked + .slider.Prowl.Line {
+    background-color: #ffea00
+}
+
+input:checked + .slider.U-PARK {
+    background-color: #00ff00
+} */
+input:checked + .slider.The.Hop {
+    /* background-color: #0000ff */
+    /* currently set to yellow because it is classed as a bus still */
+    background-color: #ffea00
+}
+input:checked + .slider.Bublr {
+    background-color: #0000ff
+}
 input:focus + .slider {
     box-shadow: 0 0 1px #99675d;
 }

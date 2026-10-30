@@ -58,6 +58,7 @@ export function requestRoute(
             if (displayRoute.length > 0) {
                 getRoute(displayRoute);
                 alert(JSON.stringify(displayRoute));
+                console.log(JSON.stringify(displayRoute));
             }
             else {
                 alert("No route found.");
