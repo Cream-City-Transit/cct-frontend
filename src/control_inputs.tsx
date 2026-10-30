@@ -3,6 +3,9 @@ import Submitted from './submission';
 import Switch from './switch';
 import { Place, usePlaceSearch } from './geocoder';
 import type { Route } from './submission';
+import Accordion from '@mui/material/Accordion';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
 
 type Coordinates = {
     lat: number;
@@ -139,34 +142,75 @@ function Navigation({
 
             {minimized && (
                 <>
-                    <input type="search" className="search" value={origin} id="origin" placeholder="Starting Location" onChange={handleSearch}/><br/>
-                    {originView && origin && (
-                        <Suggestions results={originResults} onSelect={selectOrigin} />
-                    )}
-                    <input type="search" className="search" value={destination} id="destination" placeholder="Destination" onChange={handleSearch}/><br/>
-                    {destinationView && destination && (
-                        <Suggestions results={destinationResults} onSelect={selectDestination} />
-                    )}
-                    <button type="submit" className="submit_button"> Generate Route </button>
-                    <div className="section"> Transportation Modes </div>
-                    <div className="switch_grid">
-                        <Switch mode="MCTS" state={modes.includes("MCTS") ? "On" : "Off"} checked={modes.includes("MCTS")} onToggle={toggleMode}/>
-                        <Switch mode="Prowl Line" state={modes.includes("Prowl Line") ? "On" : "Off"} checked={modes.includes("Prowl Line")} onToggle={toggleMode}/>
-                        <Switch mode="U-PARK" state={modes.includes("U-PARK") ? "On" : "Off"} checked={modes.includes("U-PARK")} onToggle={toggleMode}/>
-                        <Switch mode="The Hop" state={modes.includes("The Hop") ? "On" : "Off"} checked={modes.includes("The Hop")} onToggle={toggleMode}/>
-                        <Switch mode="Bublr" state={modes.includes("Bublr") ? "On" : "Off"} checked={modes.includes("Bublr")} onToggle={toggleMode}/>
-                    </div>
-                    <div className="section"> Walking Preference </div>
-                    <div className="range_container">
-                        <input type="range"
-                            id="pref"
-                            min="0"
-                            max="3"
-                            step="0.1"
-                            value={walkingDistance}
-                            onChange={walkingPreference}/>
-                        <label htmlFor="pref"> {walkingDistance} mi </label>
-                    </div>
+                    <Accordion slotProps={{ heading: { component: 'h2' } }} defaultExpanded={true}sx={{width: 300 , background: '#81A6C6', color: 'white', fontSize: '30px'}}>
+                        <AccordionSummary
+                            aria-controls="panel1-content"
+                            id="panel1-header"
+                        >
+                            Navigate
+                        </AccordionSummary>
+                        <AccordionDetails sx={{background: 'white', color: '#3B444B'}}>
+                            <input type="search" className="search" value={origin} id="origin" placeholder="Starting Location" onChange={handleSearch}/><br/>
+                            {originView && origin && (
+                                <Suggestions results={originResults} onSelect={selectOrigin} />
+                            )}
+                            <input type="search" className="search" value={destination} id="destination" placeholder="Destination" onChange={handleSearch}/><br/>
+                            {destinationView && destination && (
+                                <Suggestions results={destinationResults} onSelect={selectDestination} />
+                            )}
+                            <button type="submit" className="submit_button"> Generate Route </button>
+                        </AccordionDetails>
+                    </Accordion>
+
+                    <Accordion slotProps={{ heading: { component: 'h4' } }} sx={{width: 300 , background: '#81A6C6', color: 'white'}}>
+                        <AccordionSummary
+                            aria-controls="panel1-content"
+                            id="panel1-header"
+                        >
+                            Transportation Modes
+                        </AccordionSummary>
+                        <AccordionDetails sx={{background: 'white', color: '#3B444B'}}>
+                            <div className="switch_grid">
+                                <Switch mode="MCTS" state={modes.includes("MCTS") ? "On" : "Off"} checked={modes.includes("MCTS")} onToggle={toggleMode}/>
+                                <Switch mode="Prowl Line" state={modes.includes("Prowl Line") ? "On" : "Off"} checked={modes.includes("Prowl Line")} onToggle={toggleMode}/>
+                                <Switch mode="U-PARK" state={modes.includes("U-PARK") ? "On" : "Off"} checked={modes.includes("U-PARK")} onToggle={toggleMode}/>
+                                <Switch mode="The Hop" state={modes.includes("The Hop") ? "On" : "Off"} checked={modes.includes("The Hop")} onToggle={toggleMode}/>
+                                <Switch mode="Bublr" state={modes.includes("Bublr") ? "On" : "Off"} checked={modes.includes("Bublr")} onToggle={toggleMode}/>
+                            </div>
+                        </AccordionDetails>
+                    </Accordion>
+
+                    <Accordion slotProps={{ heading: { component: 'h4' } }} sx={{width: 300, background: '#81A6C6', color: 'white'}}>
+
+                        <AccordionSummary
+                            aria-controls="panel1-content"
+                            id="panel1-header"
+                        >
+                            Walking Preference
+                        </AccordionSummary>
+                        <AccordionDetails sx={{background: 'white', color: '#3B444B'}}>
+                            <div className="range_container">
+                                <input type="range"
+                                       id="pref"
+                                       min="0"
+                                       max="3"
+                                       step="0.1"
+                                       value={walkingDistance}
+                                       onChange={walkingPreference}/>
+                                <label htmlFor="pref"> {walkingDistance} mi </label>
+                            </div>
+                        </AccordionDetails>
+                    </Accordion>
+
+                    <Accordion slotProps={{ heading: { component: 'h4' } }} sx={{width: 300, background: '#81A6C6', color: 'white'}}>
+
+                        <AccordionSummary
+                            aria-controls="panel1-content"
+                            id="panel1-header"
+                        >
+                            View Stops
+                        </AccordionSummary>
+                    </Accordion>
                 </>
             )}
         </form>
