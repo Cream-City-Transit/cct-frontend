@@ -87,20 +87,41 @@ function App() {
   const generateRoute = useMemo<GeoJSON.FeatureCollection>(() => {
     const allLegs = route[0]?.legs ?? [];
     const visible = activeLeg === null ? allLegs : allLegs.slice(activeLeg, activeLeg + 1);
-    return {
-      type: "FeatureCollection",
-      features: visible.map((routePart) => ({
+    
+    //add lines to connect each leg
+    const features: GeoJSON.Feature[] = [];
+
+    //draw each leg
+    visible.forEach((routePart, i) => {
+      const coords = routePart.geometry.map((p) => [p.lon, p.lat]);
+
+      features.push({
         type: "Feature",
         properties: { mode: routePart.mode },
-        geometry: {
-          type: "LineString",
-          coordinates: routePart.geometry.map((p) => [p.lon, p.lat]),
-        },
-      })),
-    };
+        geometry: { type: "LineString", coordinates: coords },
+      });
+
+      //check if we have another leg after the current one
+      const next = visible[i + 1];
+      if (next && coords.length && next.geometry.length) {
+        const end = coords[coords.length - 1];
+        const start = [next.geometry[0].lon, next.geometry[0].lat];
+
+        //if the end and start of each leg aren't touching then add a connecting line
+        if (end[0] !== start[0] || end[1] !== start[1]) {
+          features.push({
+            type: "Feature",
+            properties: { mode: next.mode },
+            geometry: { type: "LineString", coordinates: [end, start] },
+          });
+        }
+      }
+    });
+
+    return { type: "FeatureCollection", features };
   }, [route, activeLeg]);
 
-  // draw the routing line
+  //draw the routing line
   useEffect(() => {
     const map = mapRef.current?.getMap();
     if (!map) return;
@@ -112,12 +133,33 @@ function App() {
         return;
       }
       map.addSource("route", { type: "geojson", data: generateRoute });
+
+      //add border for the line first, darker than the actual lines
+      map.addLayer({
+        id: "route-line-border",
+        type: "line",
+        source: "route",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-width": 6,
+                "line-color": {
+                  property: "mode",
+                  type: "categorical",
+                  stops: [
+                    ["WALK", "#880000"],
+                    ["CAR", "#884100"],
+                    ["BUS", "#887500"],
+                    ["BICYCLE", "#000088"],
+                  ]
+                }, },
+      });
+      
+      //draw the actual line itself
       map.addLayer({
         id: "route-line",
         type: "line",
         source: "route",
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-width": 6,
+        paint: { "line-width": 3,
                 "line-color": {
                   property: "mode",
                   type: "categorical",
@@ -131,8 +173,11 @@ function App() {
                     // ["The Hop", "#0000ff"],
                     ["BICYCLE", "#0000ff"],
                   ]
-                } },
+                }, },
       });
+
+      
+
     };
 
     try {
