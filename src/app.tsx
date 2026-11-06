@@ -16,19 +16,13 @@ import StopsOverlay from "@opentripplanner/stops-overlay";
 import { Stop } from "@opentripplanner/types";
 import { Route, requestRoute } from "./submission";
 import type { FeatureCollection } from "geojson";
+import { BusStop } from 'iconoir-react';
 import Itinerary, {
   legSeconds,
   legDistance,
   formatDuration,
   formatDistance,
 } from "./planRoute";
-
-const testStop: Stop[] =  [
-    { id: "4026", lat: 42.9766622,  lon: -87.9481609, name: "S27 & S3744", gtfsId: "MCTS:4026"},
-    { id: "4027", lat: 42.9816537,  lon: -87.9481095, name: "S27 & MORGAN", gtfsId: "MCTS:4027"},
-    { id: "4025", lat: 42.9737435,  lon: -87.9482475, name: "S27 & HOWARD", gtfsId: "MCTS:4025"},
-    { id: "4022", lat: 42.9665053,  lon: -87.9483668, name: "S27 & BOLIVAR", gtfsId: "MCTS:4022"},
-];
 
 type Coordinates = {
   lat: number;
@@ -57,7 +51,8 @@ function App() {
 
   // selected modes
   const [modes, setModes] = useState<string[]>([]);
-
+  // stops
+  const [stops, setStops] = useState<Stop[]>([]);
   // the route
   const [route, setRoute] = useState<Route[]>([]);
   const [showPopup, setShowPopup] = useState(false);
@@ -207,6 +202,10 @@ function App() {
     }
 };
 
+  const handleStops = (stops: Stop[])=> {
+      setStops(stops)
+  };
+
   // zoom to the start of the route and show only the first leg
 const startRoute = () => {
   const firstLeg = route[0]?.legs[0];
@@ -293,7 +292,7 @@ const [hasGeneratedRoute, setHasGeneratedRoute] = useState(false);
                 {formatDistance(totalMeters)} · est.
               </Popup>
             )}
-            <StopsOverlay stops={testStop} visible={true} />
+            <StopsOverlay stops={stops} visible={true} StopMarker={<BusStop/>} color={'#4A70A9'} highlightedStopColor={'red'}/>
           </BaseMap>
 
           <Navigation
@@ -310,6 +309,7 @@ const [hasGeneratedRoute, setHasGeneratedRoute] = useState(false);
             modes={modes}
             setModes={setModes}
             getRoute={handleRoute}
+            getStops={handleStops}
           />
           <Itinerary
             route={route}

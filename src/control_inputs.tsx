@@ -6,6 +6,9 @@ import type { Route } from './submission';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
+import {Stop} from "@opentripplanner/types";
+import ViewStops from "./fetchStops";
+import { BusStop } from 'iconoir-react';
 
 type Coordinates = {
     lat: number;
@@ -25,6 +28,7 @@ type ControlInputsProps = {
     modes: string[];
     setModes: React.Dispatch<React.SetStateAction<string[]>>;
     getRoute: (route: Route[]) => void;
+    getStops: (stops: Stop[]) => void;
     onSwap: () => void;
 };
 
@@ -59,7 +63,8 @@ function Navigation({
     setDestination,
     modes,
     setModes,
-    getRoute
+    getRoute,
+    getStops
 }: ControlInputsProps) {
   
     const [minimized, setMinimized] = useState(false);
@@ -69,31 +74,6 @@ function Navigation({
 
     const originResults = usePlaceSearch(origin, originView);
     const destinationResults = usePlaceSearch(destination, destinationView);
-
-// test cases, no longer needed
-    // const test = [
-    //     {"id": 1, "address": "2200 E Kenwood Blvd, Milwaukee, WI 53211", "name": "UW-Milwaukee Student Union", "lat": 43.075192, 'lon': -87.881391},
-    //     {"id": 2, "address": "3200 N Cramer St, Milwaukee, WI 53211", "name": "Engineering and Mathematical Sciences Bldg","lat": 43.075683, 'lon': -87.886414},
-    //     {"id": 3, "address": "2323 N Cambridge Ave, Milwaukee, WI 53211", "name": "UW-Milwaukee Cambridge Commons", "lat": 43.061137, 'lon': -87.892098},
-    //     {"id": 4, "address": "700 N Art Museum Dr, Milwaukee, WI 53202", "name": "Milwaukee Art Museum", "lat": 43.040073, 'lon': -87.897058},
-    //     {"id": 5, "address": "1400 E Brady St, Milwaukee, WI 53202", "name": "Walgreens", "lat":   43.053203, 'lon': -87.893555},
-    //     {"id": 6, "address": "800 W Wells St, Milwaukee, WI 53233", "name": "Milwaukee Public Museum", "lat": 43.040537, 'lon': -87.920858},
-    // ];
-
-    // // Filter locations based on what the user types
-    // const filterSearch = (selectedSearchBar: string) => {
-    //     return test.filter(
-    //         (location) =>
-    //             location.address
-    //                 .toLowerCase()
-    //                 .includes(selectedSearchBar.toLowerCase()) ||
-    //             location.name
-    //                 .toLowerCase()
-    //                 .includes(selectedSearchBar.toLowerCase())
-    //     );
-    // };
-
-
 
     // Handle typing in the search boxes
     const handleSearch = (
@@ -148,7 +128,7 @@ function Navigation({
 
             {minimized && (
                 <>
-                    <Accordion slotProps={{ heading: { component: 'h2' } }} defaultExpanded={true}sx={{width: 300 , background: '#81A6C6', color: 'white', fontSize: '30px'}}>
+                    <Accordion slotProps={{ heading: { component: 'h2' } }} defaultExpanded={true} sx={{width: 300 , background: '#4A70A9', color: 'white', fontSize: '30px'}}>
                         <AccordionSummary
                             aria-controls="panel1-content"
                             id="panel1-header"
@@ -176,7 +156,7 @@ function Navigation({
                         </AccordionDetails>
                     </Accordion>
 
-                    <Accordion slotProps={{ heading: { component: 'h4' } }} sx={{width: 300 , background: '#81A6C6', color: 'white'}}>
+                    <Accordion slotProps={{ heading: { component: 'h4' } }} defaultExpanded={true} sx={{width: 300 , background: '#4A70A9', color: 'white'}}>
                         <AccordionSummary
                             aria-controls="panel1-content"
                             id="panel1-header"
@@ -194,7 +174,7 @@ function Navigation({
                         </AccordionDetails>
                     </Accordion>
 
-                    <Accordion slotProps={{ heading: { component: 'h4' } }} sx={{width: 300, background: '#81A6C6', color: 'white'}}>
+                    <Accordion slotProps={{ heading: { component: 'h4' } }} sx={{width: 300, background: '#4A70A9', color: 'white'}}>
 
                         <AccordionSummary
                             aria-controls="panel1-content"
@@ -216,14 +196,26 @@ function Navigation({
                         </AccordionDetails>
                     </Accordion>
 
-                    <Accordion slotProps={{ heading: { component: 'h4' } }} sx={{width: 300, background: '#81A6C6', color: 'white'}}>
+                    <Accordion slotProps={{ heading: { component: 'h4' } }} sx={{width: 300, background: '#4A70A9', color: 'white'}}>
 
                         <AccordionSummary
                             aria-controls="panel1-content"
-                            id="panel1-header"
+                            id="stops"
                         >
-                            View Stops
+                            Stops
                         </AccordionSummary>
+
+                        <AccordionDetails sx={{background: 'white', color: '#3B444B'}}>
+                            <button
+                                type="button"
+                                className="stops_button"
+                                onClick={(e) => {ViewStops(e, getStops)}}
+                                title="Swap starting location and destination"
+                            >
+                                <BusStop/> View Stops
+                            </button>
+                        </AccordionDetails>
+
                     </Accordion>
 
                 </>
