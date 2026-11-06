@@ -30,6 +30,8 @@ type ControlInputsProps = {
     getRoute: (route: Route[]) => void;
     getStops: (stops: Stop[]) => void;
     onSwap: () => void;
+    onUseLocation: () => void;
+    clearRoute: () => void;
 };
 
 function Suggestions({ results, onSelect }: { results: Place[]; onSelect: (p: Place) => void }) {
@@ -52,6 +54,8 @@ function Suggestions({ results, onSelect }: { results: Place[]; onSelect: (p: Pl
 
 function Navigation({
     onSwap,
+    onUseLocation,
+    clearRoute,
     setHasGeneratedRoute,
     originCoords,
     destinationCoords,
@@ -66,7 +70,7 @@ function Navigation({
     getRoute,
     getStops
 }: ControlInputsProps) {
-  
+
     const [minimized, setMinimized] = useState(false);
     const [originView, setOriginView] = useState(false);
     const [destinationView, setDestinationView] = useState(false);
@@ -92,6 +96,7 @@ function Navigation({
 
     // Starting point
     const selectOrigin = (place: Place) => {
+        clearRoute(); // the start point changed, so the old route is stale
         setOrigin(place.address || place.name);
         setOriginCoords({ lat: place.lat, lon: place.lon });
         setOriginView(false);
@@ -99,14 +104,16 @@ function Navigation({
 
     // Destination
     const selectDestination = (place: Place) => {
+        clearRoute(); // the end point changed, so the old route is stale
         setDestination(place.address || place.name);
         setDestinationCoords({ lat: place.lat, lon: place.lon });
         setDestinationView(false);
     };
+
     const walkingPreference = (preference:React.ChangeEvent<HTMLInputElement>) => {
         setWalkingDistance(preference.target.valueAsNumber);
     };
-    
+
     const toggleMode = (mode: string) => {
         setModes((prev) => {
             if (prev.includes(mode)) {
@@ -140,14 +147,22 @@ function Navigation({
                             {originView && origin && (
                                 <Suggestions results={originResults} onSelect={selectOrigin} />
                             )}
-                                <button
-                                    type="button"
-                                    className="swap_button"
-                                    onClick={onSwap}
-                                    title="Swap starting location and destination"
-                                >
-                                    ⇅
-                                </button>
+                            <button
+                                type="button"
+                                className="location_button"
+                                onClick={onUseLocation}
+                                title="Use my current location as the starting point"
+                            >
+                                📍 Use my location
+                            </button>
+                            <button
+                                type="button"
+                                className="swap_button"
+                                onClick={onSwap}
+                                title="Swap starting location and destination"
+                            >
+                                ⇅
+                            </button>
                             <input type="search" className="search" value={destination} id="destination" placeholder="Destination" onChange={handleSearch}/><br/>
                             {destinationView && destination && (
                                 <Suggestions results={destinationResults} onSelect={selectDestination} />
@@ -210,7 +225,7 @@ function Navigation({
                                 type="button"
                                 className="stops_button"
                                 onClick={(e) => {ViewStops(e, getStops)}}
-                                title="Swap starting location and destination"
+                                title="View bus stops on the map"
                             >
                                 <BusStop/> View Stops
                             </button>

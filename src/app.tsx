@@ -58,22 +58,30 @@ function App() {
   const [showPopup, setShowPopup] = useState(false);
   // null = show the whole route, a number = show only that leg
   const [activeLeg, setActiveLeg] = useState<number | null>(null);
+  // true once the user has pressed "Generate Route" (and not cleared it since)
+  const [hasGeneratedRoute, setHasGeneratedRoute] = useState(false);
 
-  // Fires when a pin is dragged and dropped
+  // Wipe the current route because it no longer matches the start/end points
+  const clearRoute = () => {
+    setRoute([]);
+    setActiveLeg(null);
+    setShowPopup(false);
+    setHasGeneratedRoute(false);
+  };
+
+  // Fires when a pin is dragged and dropped (also used by "use my location")
   const handleSetLocation = async ({ location, locationType }: any) => {
     const coords = { lat: location.lat, lon: location.lon };
     const isFrom = locationType === "from";
     const setCoords = isFrom ? setOriginCoords : setDestinationCoords;
     const setText = isFrom ? setOrigin : setDestination;
-  
-    setRoute([]);
-    setActiveLeg(null);
-    setShowPopup(false);
-    setHasGeneratedRoute(false);
-  
+
+    clearRoute();
+
     setCoords(coords);
+    // Show raw coordinates immediately, replace with the address when it arrives
     setText(`${coords.lat.toFixed(5)}, ${coords.lon.toFixed(5)}`);
-  
+
     try {
       const place = await reverseGeocode(coords.lat, coords.lon);
       if (place) setText(place.address || place.name);
@@ -82,11 +90,44 @@ function App() {
     }
   };
 
+  // Use the browser's current position as the starting location
+  const locateMe = () => {
+    if (!("geolocation" in navigator)) {
+      alert("Your browser doesn't support location services.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const coords = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+
+        // Treat it like the origin pin being dropped at the user's position
+        await handleSetLocation({ location: coords, locationType: "from" });
+
+        mapRef.current?.flyTo({
+          center: [coords.lon, coords.lat], // MapLibre wants [lon, lat]
+          zoom: 16,
+          duration: 1000,
+        });
+      },
+      (err) => {
+        // 1 = permission denied, 2 = position unavailable, 3 = timeout
+        console.error("Geolocation error:", err.code, err.message);
+        if (err.code === 1) {
+          alert("Location permission was denied. Enable it in your browser settings to use this.");
+        } else {
+          alert("Couldn't get your location. Please try again.");
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  };
+
   // generate the route line (only the active leg once the route has started)
   const generateRoute = useMemo<GeoJSON.FeatureCollection>(() => {
     const allLegs = route[0]?.legs ?? [];
     const visible = activeLeg === null ? allLegs : allLegs.slice(activeLeg, activeLeg + 1);
-    
+
     //add lines to connect each leg
     const features: GeoJSON.Feature[] = [];
 
@@ -151,7 +192,7 @@ function App() {
                   ]
                 }, },
       });
-      
+
       //draw the actual line itself
       map.addLayer({
         id: "route-line",
@@ -174,9 +215,6 @@ function App() {
                   ]
                 }, },
       });
-
-      
-
     };
 
     try {
@@ -204,46 +242,46 @@ function App() {
             { padding: 200, duration: 800 }
         );
     }
-};
+  };
 
-  const handleStops = (stops: Stop[])=> {
-      setStops(stops)
+  const handleStops = (stops: Stop[]) => {
+    setStops(stops);
   };
 
   // zoom to the start of the route and show only the first leg
-const startRoute = () => {
-  const firstLeg = route[0]?.legs[0];
-  const start = firstLeg?.geometry[0];
-  if (!start) return;
-  setActiveLeg(0);
-  setShowPopup(false);
-  mapRef.current?.flyTo({
-    center: [start.lon, start.lat],
-    zoom: 17,
-    duration: 1200,
-  });
-};
-// Swap starting and ending locations
-const swapLocations = () => {
-  const newOrigin = destinationCoords;
-  const newDestination = originCoords;
+  const startRoute = () => {
+    const firstLeg = route[0]?.legs[0];
+    const start = firstLeg?.geometry[0];
+    if (!start) return;
+    setActiveLeg(0);
+    setShowPopup(false);
+    mapRef.current?.flyTo({
+      center: [start.lon, start.lat],
+      zoom: 17,
+      duration: 1200,
+    });
+  };
 
-  setOriginCoords(newOrigin);
-  setDestinationCoords(newDestination);
+  // Swap starting and ending locations
+  const swapLocations = () => {
+    const newOrigin = destinationCoords;
+    const newDestination = originCoords;
 
-  setOrigin(destination);
-  setDestination(origin);
+    setOriginCoords(newOrigin);
+    setDestinationCoords(newDestination);
 
-  setRoute([]);
-  setActiveLeg(null);
-  setShowPopup(false);
+    setOrigin(destination);
+    setDestination(origin);
 
-  // Only regenerate if the user previously requested a route
-  if (hasGeneratedRoute) {
+    setRoute([]);
+    setActiveLeg(null);
+    setShowPopup(false);
+
+    // Only regenerate if the user previously requested a route
+    if (hasGeneratedRoute) {
       requestRoute(newOrigin, newDestination, modes, handleRoute);
-  }
-};
-const [hasGeneratedRoute, setHasGeneratedRoute] = useState(false);
+    }
+  };
 
   const legs = route[0]?.legs ?? [];
   const allPts = legs.flatMap((l) => l.geometry);
@@ -303,6 +341,8 @@ const [hasGeneratedRoute, setHasGeneratedRoute] = useState(false);
             originCoords={originCoords}
             destinationCoords={destinationCoords}
             onSwap={swapLocations}
+            onUseLocation={locateMe}
+            clearRoute={clearRoute}
             setHasGeneratedRoute={setHasGeneratedRoute}
             setOriginCoords={setOriginCoords}
             setDestinationCoords={setDestinationCoords}
