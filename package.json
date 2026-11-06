@@ -42,6 +42,7 @@
     "@opentripplanner/stops-overlay": "^8.2.0",
     "@opentripplanner/transit-vehicle-overlay": "^7.1.1",
     "@opentripplanner/types": "^8.6.2",
+    "iconoir-react": "^7.12.2",
     "react": "^18.3.1",
     "react-animate-height": "^3.2.4",
     "react-dom": "^18.3.1",
