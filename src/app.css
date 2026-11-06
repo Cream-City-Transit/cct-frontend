@@ -337,13 +337,49 @@ input:checked + .slider:before {
     border-bottom: none;
 }
 
-.itinerary-swatch {
+/* .itinerary-swatch {
     display: inline-block;
     width: 10px;
     height: 10px;
     margin-right: 8px;
     border-radius: 50%;
     background-color: #81A6C6;
+} */
+
+.itinerary-swatch.WALK {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background-color: #ff0000;
+}
+
+.itinerary-swatch.CAR {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background-color: #ff7900;
+}
+
+.itinerary-swatch.BUS {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background-color: #ffea00;
+}
+
+.itinerary-swatch.BICYCLE {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background-color: #0000ff;
 }
 
 .itinerary-mode {

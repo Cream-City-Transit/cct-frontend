@@ -77,7 +77,7 @@ type Props = {
                 {legs.map((leg, i) => (
                     <li key={i} className="itinerary-leg">
                         <span
-                            className="itinerary-swatch"
+                            className={`itinerary-swatch ${leg.mode}`}
                         />
                         <span className="itinerary-mode">
                             {MODE_LABELS[leg.mode] ?? leg.mode}
