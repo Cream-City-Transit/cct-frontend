@@ -65,11 +65,15 @@ function App() {
     const isFrom = locationType === "from";
     const setCoords = isFrom ? setOriginCoords : setDestinationCoords;
     const setText = isFrom ? setOrigin : setDestination;
-
+  
+    setRoute([]);
+    setActiveLeg(null);
+    setShowPopup(false);
+    setHasGeneratedRoute(false);
+  
     setCoords(coords);
-    // Show raw coordinates immediately, replace with the address when it arrives
     setText(`${coords.lat.toFixed(5)}, ${coords.lon.toFixed(5)}`);
-
+  
     try {
       const place = await reverseGeocode(coords.lat, coords.lon);
       if (place) setText(place.address || place.name);
@@ -292,7 +296,7 @@ const [hasGeneratedRoute, setHasGeneratedRoute] = useState(false);
                 {formatDistance(totalMeters)} · est.
               </Popup>
             )}
-            <StopsOverlay stops={stops} visible={true} StopMarker={<BusStop/>} color={'#4A70A9'} highlightedStopColor={'red'}/>
+            {/* <StopsOverlay stops={stops} visible={true} StopMarker={<BusStop/>} color={'#4A70A9'} highlightedStopColor={'red'}/> */}
           </BaseMap>
 
           <Navigation
