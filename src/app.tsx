@@ -334,7 +334,7 @@ function App() {
                 {formatDistance(totalMeters)} · est.
               </Popup>
             )}
-            {/* <StopsOverlay stops={stops} visible={true} StopMarker={<BusStop/>} color={'#4A70A9'} highlightedStopColor={'red'}/> */}
+            <StopsOverlay stops={stops} visible={true} color={'#4A70A9'}/>
           </BaseMap>
 
           <Navigation
