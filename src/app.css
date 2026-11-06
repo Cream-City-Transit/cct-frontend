@@ -33,9 +33,20 @@ body,
     z-index: 2000;
 }
 
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .header-left h1 {
     margin: 0;
     font-size: 24px;
+}
+
+.train-icon {
+    width: 50px;
+    height: 50px;
 }
 
 /* Navigation */
@@ -68,6 +79,7 @@ body,
     height: 100%;
 }
 
+/* Navigation panel */
 .navigation {
     position: absolute;
     top: 100px;
@@ -98,84 +110,118 @@ body,
 .minimize_button {
     align-self: flex-end;
     width: 30px;
-    height: 30px;
+    height: 25px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    background-color: white;
-    font-size: 20px;
+    background: #81A6C6;
 }
 
+/* Buttons */
 .submit_button {
-    padding: 15px;
+    padding: 10px;
     cursor: pointer;
     background-color: #81A6C6;
     border-radius: 4px;
     border: slategray solid 1px;
-    color: white;
+    color: ghostwhite;
     width: 250px;
     margin-left: 10px;
 }
+
 .stops_button {
     display: flex;
-    padding: 15px;
+    padding: 10px;
     justify-content: center;
     align-items: center;
     cursor: pointer;
     background-color: #81A6C6;
     border-radius: 4px;
     border: slategray solid 1px;
-    color: white;
+    color: ghostwhite;
     width: 150px;
     margin: auto;
 }
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+
+.location_button {
+    display: inline-block;
+    vertical-align: top;
+    box-sizing: border-box;
+    height: 30px;
+    padding: 0 8px;
+    cursor: pointer;
+    background-color: #81A6C6;
+    border-radius: 4px;
+    border: slategray solid 1px;
+    color: ghostwhite;
+    width: 204px;
+    margin: 0 0 7px 10px;
 }
 
-.train-icon {
-    width: 50px;
-    height: 50px;
+.swap_button {
+    display: inline-block;
+    vertical-align: top;
+    box-sizing: border-box;
+    width: 36px;
+    height: 30px;
+    /* 10 + 204 (location button) + 10 + 36 = 260, same right edge as the inputs */
+    margin: 0 0 7px 10px;
+
+    background-color: #81A6C6;
+    border: 1px solid slategray;
+    border-radius: 5px;
+
+    color: ghostwhite;
+    font-size: 20px;
+    font-weight: bold;
+
+    cursor: pointer;
 }
 
+.submit_button:hover,
+.stops_button:hover,
+.location_button:hover,
+.swap_button:hover {
+    background-color: #6e95b7;
+}
+
+/* Zoom controls */
 .zoom-controls {
     position: absolute;
     right: 20px;
     bottom: 20px;
-  
+
     display: flex;
     flex-direction: column;
-  
+
     z-index: 1000;
-  }
-  
-  .zoom-controls button {
+}
+
+.zoom-controls button {
     width: 40px;
     height: 40px;
-  
+
     border: 1px solid #ccc;
     background-color: white;
-  
+
     font-size: 24px;
     line-height: 1;
-  
+
     cursor: pointer;
-  }
-  
-  .zoom-controls button:hover {
+}
+
+.zoom-controls button:hover {
     background-color: #f0f0f0;
-  }
-  
-  .zoom-controls button:first-child {
+}
+
+.zoom-controls button:first-child {
     border-radius: 6px 6px 0 0;
-  }
-  
-  .zoom-controls button:last-child {
+}
+
+.zoom-controls button:last-child {
     border-top: none;
     border-radius: 0 0 6px 6px;
-  }
+}
 
 /* switch styling */
 .switch_grid {
@@ -222,7 +268,7 @@ input:checked + .slider {
     background-color: #81c6a8;
 }
 input:checked + .slider.MCTS {
-    background-color: #ffea00
+    background-color: #ffea00;
 }
 /* input:checked + .slider.Prowl.Line {
     background-color: #ffea00
@@ -232,12 +278,11 @@ input:checked + .slider.U-PARK {
     background-color: #00ff00
 } */
 input:checked + .slider.The.Hop {
-    /* background-color: #0000ff */
     /* currently set to yellow because it is classed as a bus still */
-    background-color: #ffea00
+    background-color: #ffea00;
 }
 input:checked + .slider.Bublr {
-    background-color: #0000ff
+    background-color: #0000ff;
 }
 input:focus + .slider {
     box-shadow: 0 0 1px #99675d;
@@ -276,6 +321,14 @@ input:checked + .slider:before {
 }
 .range_container label {
     margin-left: 10px;
+}
+.section {
+    text-align: center;
+    color: #3B444B;
+    font-size: 16px;
+    font-weight: bold;
+    border-bottom: 1px solid #3B444B;
+    padding: 5px 0;
 }
 
 /* Itinerary panel */
@@ -337,50 +390,20 @@ input:checked + .slider:before {
     border-bottom: none;
 }
 
-/* .itinerary-swatch {
+.itinerary-swatch {
     display: inline-block;
     width: 10px;
     height: 10px;
     margin-right: 8px;
     border-radius: 50%;
     background-color: #81A6C6;
-} */
-
-.itinerary-swatch.WALK {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    margin-right: 8px;
-    border-radius: 50%;
-    background-color: #ff0000;
 }
 
-.itinerary-swatch.CAR {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    margin-right: 8px;
-    border-radius: 50%;
-    background-color: #ff7900;
-}
-
-.itinerary-swatch.BUS {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    margin-right: 8px;
-    border-radius: 50%;
-    background-color: #ffea00;
-}
-
-.itinerary-swatch.BICYCLE {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    margin-right: 8px;
-    border-radius: 50%;
-    background-color: #0000ff;
-}
+/* colours match the route line on the map */
+.itinerary-swatch.WALK { background-color: #ff0000; }
+.itinerary-swatch.CAR { background-color: #ff7900; }
+.itinerary-swatch.BUS { background-color: #ffea00; }
+.itinerary-swatch.BICYCLE { background-color: #0000ff; }
 
 .itinerary-mode {
     color: #40404F;
@@ -413,29 +436,5 @@ input:checked + .slider:before {
 }
 
 .itinerary-button:hover {
-    background-color: #6e95b7;
-}
-
-
-/* Swap starting location and destination */
-.swap_button {
-    align-self: center;
-    margin: -30px 0 10px 10px;
-    width: 36px;
-    height: 30px;
-
-    background-color: #81A6C6;
-    border: 1px solid slategray;
-    border-radius: 5px;
-
-    color: ghostwhite;
-    font-size: 20px;
-    font-weight: bold;
-
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.swap_button:hover {
     background-color: #6e95b7;
 }
