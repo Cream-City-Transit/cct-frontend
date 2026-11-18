@@ -7,7 +7,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import EndpointsOverlay from "@opentripplanner/endpoints-overlay";
 import Navigation from "./control_inputs";
 import TrainIcon from "./train_icon";
-import { MapRef, Popup } from "react-map-gl/maplibre";
+import { MapRef, Popup, Marker } from "react-map-gl/maplibre";
 import type { GeoJSONSource } from "maplibre-gl";
 import ZoomControls from "./ZoomControls";
 import { reverseGeocode } from "./geocoder";
@@ -61,12 +61,22 @@ function App() {
   // true once the user has pressed "Generate Route" (and not cleared it since)
   const [hasGeneratedRoute, setHasGeneratedRoute] = useState(false);
 
+  // used to user tracking
+  const watchIdRef = useRef<number | null>(null);
+  const [livePosition, setLivePosition] = useState<{
+    lat: number;
+    lon: number;
+    heading: number | null;
+    accuracy: number;
+  } | null>(null);
+
   // Wipe the current route because it no longer matches the start/end points
   const clearRoute = () => {
     setRoute([]);
     setActiveLeg(null);
     setShowPopup(false);
     setHasGeneratedRoute(false);
+    stopTracking();
   };
 
   // Fires when a pin is dragged and dropped (also used by "use my location")
@@ -121,6 +131,56 @@ function App() {
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
+  };
+
+  // track the user as they move once they start the route
+  const trackUser = () => {
+    if (!("geolocation" in navigator)) {
+      alert("Your browser doesn't support location services.");
+      return;
+    }
+
+    //check to see if we are already tracking before we start 
+    if (watchIdRef.current !== null) return;
+
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      async (pos) => {
+        //console log test for location updates
+        console.log(
+          new Date().toLocaleTimeString(),
+          pos.coords.latitude.toFixed(6),
+          pos.coords.longitude.toFixed(6),
+          "accuracy:", Math.round(pos.coords.accuracy), "m"
+        );
+
+        //update our live position 
+        setLivePosition({
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude,
+          heading: pos.coords.heading,
+          accuracy: pos.coords.accuracy,
+        });
+      },
+      (err) => {
+        console.error("Geolocation error:", err.code, err.message);
+        if (err.code === 1) {
+          alert("Location permission was denied. Enable it in your browser settings to use this.");
+          stopTracking();
+        } else {
+          alert("Couldn't get your location. Please try again.");
+        }
+      },
+      { enableHighAccuracy: true, maximumAge: 2000 }
+    );
+  };
+
+  // stop tracking once the user ends the route
+  const stopTracking = () => {
+    if (watchIdRef.current !== null) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
+    setLivePosition(null);
   };
 
   // generate the route line (only the active leg once the route has started)
@@ -225,6 +285,7 @@ function App() {
   }, [generateRoute]);
 
   const handleRoute = (routes: Route[]) => {
+    stopTracking();
     setRoute(routes);
     setActiveLeg(null);
     setShowPopup(true);
@@ -255,6 +316,7 @@ function App() {
     if (!start) return;
     setActiveLeg(0);
     setShowPopup(false);
+    trackUser();
     mapRef.current?.flyTo({
       center: [start.lon, start.lat],
       zoom: 17,
@@ -264,6 +326,7 @@ function App() {
 
   // Swap starting and ending locations
   const swapLocations = () => {
+    stopTracking();
     const newOrigin = destinationCoords;
     const newDestination = originCoords;
 
@@ -321,6 +384,19 @@ function App() {
               }}
               setLocation={handleSetLocation}
             />
+            {livePosition && (
+              <Marker latitude={livePosition.lat} longitude={livePosition.lon}>
+                <div
+                  style={{
+                    width: 16,
+                    height: 16,
+                    borderRadius: "50%",
+                    background: "#ffbd00",
+                    border: "3px solid #000000",
+                  }}
+                />
+              </Marker>
+            )}
             {showPopup && midPoint && (
               <Popup
                 latitude={midPoint.lat}
