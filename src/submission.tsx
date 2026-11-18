@@ -57,7 +57,8 @@ export function requestRoute(
             //pass the generated route, if no route is found then display an error message
             if (displayRoute.length > 0) {
                 getRoute(displayRoute);
-                alert(JSON.stringify(displayRoute));
+                //get rid of the test alert, we don't need it anymore
+                // alert(JSON.stringify(displayRoute));
                 console.log(JSON.stringify(displayRoute));
             }
             else {
