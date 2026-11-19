@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 export type Coordinates = {
@@ -22,9 +21,30 @@ export type Point = {
     lon: number;
 }
 
+// One turn-by-turn instruction, returned by OTP for WALK / BICYCLE / CAR legs
+export type RawStep = {
+    relativeDirection: string; // "LEFT", "RIGHT", "CONTINUE", "DEPART", ...
+    streetName: string;
+    distance: number;          // meters
+    lat: number;
+    lon: number;
+};
+
+type NamedPlace = {
+    name: string;
+    lat: number;
+    lon: number;
+};
+
 export type RoutePart = {
     mode: string;
+    duration?: number;  // seconds, from OTP
+    distance?: number;  // meters, from OTP
+    from?: NamedPlace;
+    to?: NamedPlace;
+    route?: { shortName: string; longName: string } | null; // transit legs only
     geometry: Point[];
+    steps?: RawStep[];  // WALK / BICYCLE / CAR legs only (backend must send these)
 }
 
 export type Route = {

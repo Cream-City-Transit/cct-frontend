@@ -22,12 +22,17 @@ import Itinerary, {
   legDistance,
   formatDuration,
   formatDistance,
+  buildSteps,
+  haversine,
 } from "./planRoute";
 
 type Coordinates = {
   lat: number;
   lon: number;
 };
+
+// within this many meters of the next step, auto-advance
+const ADVANCE_RADIUS_M = 20;
 
 function App() {
   const mapRef = useRef<MapRef | null>(null);
@@ -56,8 +61,8 @@ function App() {
   // the route
   const [route, setRoute] = useState<Route[]>([]);
   const [showPopup, setShowPopup] = useState(false);
-  // null = show the whole route, a number = show only that leg
-  const [activeLeg, setActiveLeg] = useState<number | null>(null);
+  // null = show the whole route, a number = index of the active turn-by-turn step
+  const [activeStep, setActiveStep] = useState<number | null>(null);
   // true once the user has pressed "Generate Route" (and not cleared it since)
   const [hasGeneratedRoute, setHasGeneratedRoute] = useState(false);
 
@@ -70,10 +75,23 @@ function App() {
     accuracy: number;
   } | null>(null);
 
+  // Flat list of turn-by-turn steps for the current route
+  const steps = useMemo(() => buildSteps(route[0]?.legs ?? []), [route]);
+
+  // The map line is still drawn per leg, so derive the active leg from the active step
+  const activeLeg = activeStep === null ? null : steps[activeStep]?.legIndex ?? null;
+
+  // The GPS watch callback is created once, so it reads current values through refs
+  // instead of closing over stale state
+  const stepsRef = useRef(steps);
+  const activeStepRef = useRef(activeStep);
+  stepsRef.current = steps;
+  activeStepRef.current = activeStep;
+
   // Wipe the current route because it no longer matches the start/end points
   const clearRoute = () => {
     setRoute([]);
-    setActiveLeg(null);
+    setActiveStep(null);
     setShowPopup(false);
     setHasGeneratedRoute(false);
     stopTracking();
@@ -133,6 +151,21 @@ function App() {
     );
   };
 
+  // Jump to a step: update state and (optionally) move the camera to it
+  const goToStep = (index: number, fly = true) => {
+    const list = stepsRef.current;
+    if (index < 0 || index >= list.length) return;
+    const step = list[index];
+    setActiveStep(index);
+    if (fly) {
+      mapRef.current?.flyTo({
+        center: [step.lon, step.lat],
+        zoom: 17,
+        duration: 800,
+      });
+    }
+  };
+
   // track the user as they move once they start the route
   const trackUser = () => {
     if (!("geolocation" in navigator)) {
@@ -153,13 +186,25 @@ function App() {
           "accuracy:", Math.round(pos.coords.accuracy), "m"
         );
 
+        const here = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+
         //update our live position 
         setLivePosition({
-          lat: pos.coords.latitude,
-          lon: pos.coords.longitude,
+          lat: here.lat,
+          lon: here.lon,
           heading: pos.coords.heading,
           accuracy: pos.coords.accuracy,
         });
+
+        // auto-advance when the user reaches the start of the next step
+        const current = activeStepRef.current;
+        const list = stepsRef.current;
+        if (current !== null && current + 1 < list.length) {
+          const next = list[current + 1];
+          if (haversine(here, next) < ADVANCE_RADIUS_M) {
+            goToStep(current + 1, false); // don't yank the camera while they're moving
+          }
+        }
       },
       (err) => {
         console.error("Geolocation error:", err.code, err.message);
@@ -287,7 +332,7 @@ function App() {
   const handleRoute = (routes: Route[]) => {
     stopTracking();
     setRoute(routes);
-    setActiveLeg(null);
+    setActiveStep(null);
     setShowPopup(true);
 
     const pts = routes[0]?.legs.flatMap((part) => part.geometry) ?? [];
@@ -309,19 +354,20 @@ function App() {
     setStops(stops);
   };
 
-  // zoom to the start of the route and show only the first leg
+  // zoom to the first step and start tracking
   const startRoute = () => {
-    const firstLeg = route[0]?.legs[0];
-    const start = firstLeg?.geometry[0];
-    if (!start) return;
-    setActiveLeg(0);
+    if (!steps.length) return;
     setShowPopup(false);
     trackUser();
-    mapRef.current?.flyTo({
-      center: [start.lon, start.lat],
-      zoom: 17,
-      duration: 1200,
-    });
+    goToStep(0);
+  };
+
+  // manual navigation between steps
+  const prevStep = () => {
+    if (activeStep !== null) goToStep(activeStep - 1);
+  };
+  const nextStep = () => {
+    if (activeStep !== null) goToStep(activeStep + 1);
   };
 
   // Swap starting and ending locations
@@ -337,7 +383,7 @@ function App() {
     setDestination(origin);
 
     setRoute([]);
-    setActiveLeg(null);
+    setActiveStep(null);
     setShowPopup(false);
 
     // Only regenerate if the user previously requested a route
@@ -353,8 +399,14 @@ function App() {
   const totalMeters = legs.reduce((sum, l) => sum + legDistance(l), 0);
 
   return (
-    <IntlProvider locale="en" messages={{}}>
-      <div className="app">
+<IntlProvider
+  locale="en"
+  messages={{}}
+  onError={(err) => {
+    if (err.code === "MISSING_TRANSLATION") return;
+    console.error(err);
+  }}
+>      <div className="app">
 
         <header className="header">
           <div className="header-left">
@@ -433,9 +485,12 @@ function App() {
           />
           <Itinerary
             route={route}
-            started={activeLeg !== null}
+            steps={steps}
+            activeStep={activeStep}
             onStart={startRoute}
             onReset={() => handleRoute(route)}
+            onPrev={prevStep}
+            onNext={nextStep}
           />
 
           <ZoomControls mapRef={mapRef} />
