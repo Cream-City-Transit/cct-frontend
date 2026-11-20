@@ -224,10 +224,18 @@ function Navigation({
                             <button
                                 type="button"
                                 className="stops_button"
-                                onClick={(e) => {ViewStops(e, getStops)}}
-                                title="View bus stops on the map"
+                                id="mcts_routes"
+                                onClick={(e) => {ViewStops(e, e.currentTarget.id, getStops)}}
                             >
-                                <BusStop/> View Stops
+                                <BusStop/> View MCTS Stops
+                            </button>
+                            <button
+                                type="button"
+                                className="stops_button"
+                                id="hop_routes"
+                                onClick={(e) => {ViewStops(e, e.currentTarget.id, getStops)}}
+                            >
+                                <BusStop/> View HOP Stops
                             </button>
                         </AccordionDetails>
 

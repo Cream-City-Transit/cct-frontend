@@ -14,9 +14,10 @@ import { reverseGeocode } from "./geocoder";
 import "maplibre-gl/dist/maplibre-gl.css";
 import StopsOverlay from "@opentripplanner/stops-overlay";
 import { Stop } from "@opentripplanner/types";
-import { Route, requestRoute } from "./submission";
+import { Route, Point, requestRoute } from "./submission";
 import type { FeatureCollection } from "geojson";
-import { BusStop } from 'iconoir-react';
+import TripViewerOverlay from "@opentripplanner/trip-viewer-overlay";
+
 import Itinerary, {
   legSeconds,
   legDistance,
@@ -30,7 +31,9 @@ type Coordinates = {
   lat: number;
   lon: number;
 };
-
+export type BusRoutes = {
+    geometry: Point[];
+}
 // within this many meters of the next step, auto-advance
 const ADVANCE_RADIUS_M = 20;
 
@@ -58,6 +61,8 @@ function App() {
   const [modes, setModes] = useState<string[]>([]);
   // stops
   const [stops, setStops] = useState<Stop[]>([]);
+  // bus routes
+  const [busRoutes, setBusRoutes] = useState<BusRoutes[]>([]);
   // the route
   const [route, setRoute] = useState<Route[]>([]);
   const [showPopup, setShowPopup] = useState(false);
@@ -353,6 +358,9 @@ function App() {
   const handleStops = (stops: Stop[]) => {
     setStops(stops);
   };
+  const handleBusRoutes = (busRoutes: BusRoutes[]) => {
+      setBusRoutes(busRoutes);
+  }
 
   // zoom to the first step and start tracking
   const startRoute = () => {
@@ -462,7 +470,7 @@ function App() {
                 {formatDistance(totalMeters)} · est.
               </Popup>
             )}
-            {/* <StopsOverlay stops={stops} visible={true} StopMarker={<BusStop/>} color={'#4A70A9'} highlightedStopColor={'red'}/> */}
+            <StopsOverlay stops={stops} visible={true} color={'#4A70A9'}/>
           </BaseMap>
 
           <Navigation
@@ -482,6 +490,7 @@ function App() {
             setModes={setModes}
             getRoute={handleRoute}
             getStops={handleStops}
+            getBusRoutes={handleBusRoutes}
           />
           <Itinerary
             route={route}
