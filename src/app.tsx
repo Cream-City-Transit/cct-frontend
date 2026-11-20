@@ -490,7 +490,6 @@ function App() {
             setModes={setModes}
             getRoute={handleRoute}
             getStops={handleStops}
-            getBusRoutes={handleBusRoutes}
           />
           <Itinerary
             route={route}
