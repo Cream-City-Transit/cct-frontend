@@ -41,6 +41,7 @@
     "@opentripplanner/itinerary-body": "^9.8.0",
     "@opentripplanner/stops-overlay": "^8.2.0",
     "@opentripplanner/transit-vehicle-overlay": "^7.1.1",
+    "@opentripplanner/trip-viewer-overlay": "^5.0.2",
     "@opentripplanner/types": "^8.6.2",
     "iconoir-react": "^7.12.2",
     "react": "^18.3.1",
